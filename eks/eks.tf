@@ -1,11 +1,11 @@
-module "eks"{
+module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 19.0"
 
   cluster_name    = var.cluster_name
   cluster_version = var.cluster_version
 
-  cluster_endpoint_public_access  = true
+  cluster_endpoint_public_access = true
 
   cluster_addons = {
     coredns = {
@@ -17,13 +17,14 @@ module "eks"{
     vpc-cni = {
       most_recent = true
     }
-    
+
   }
 
-  vpc_id = module.vpc.vpc_id
+  vpc_id = data.terraform_remote_state.vpc.outputs.vpc_id
   # Publics subnets used to avoid using NATGW and save money
-  subnet_ids               = module.vpc.public_subnets
-  control_plane_subnet_ids = module.vpc.public_subnets
+  subnet_ids = [for subnet in var.subnet_names : ata.terraform_remote_state.vpc.outputs.subnets[subnet]]
+  # data.terraform_remote_state.vpc.outputs.public_subnets_ids
+  control_plane_subnet_ids = [for subnet in var.subnet_names : ata.terraform_remote_state.vpc.outputs.subnets[subnet]]
 
   eks_managed_node_groups = {
     green = {
@@ -39,12 +40,12 @@ module "eks"{
   # Kubeshark doesn't work without this rule
   node_security_group_additional_rules = {
     allow_https_between_nodes = {
-      description                = "Allow TCP 80 between nodes for kubeshark"
-      protocol                   = "tcp"
-      from_port                  = 80
-      to_port                    = 80
-      type                       = "ingress"
-      self = true
-    }    
+      description = "Allow TCP 80 between nodes for kubeshark"
+      protocol    = "tcp"
+      from_port   = 80
+      to_port     = 80
+      type        = "ingress"
+      self        = true
+    }
   }
 }

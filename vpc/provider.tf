@@ -9,16 +9,17 @@ terraform {
   }
 
   # backend "s3" {
-  #   key    = "eks/terraform.tfstate"
+  #   key    = "vpc/terraform.tfstate"
   # }
 
   cloud {
     organization = "example-org-eed6a7"
 
     workspaces {
-      name = "eks"
+      name = "vpc"
     }
   }
+
 }
 
 provider "aws" {}

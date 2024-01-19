@@ -1,13 +1,3 @@
-output "vpc_id" {
-  description = "The ID of the VPC"
-  value       = try(module.vpc.vpc_id, null)
-}
-
-output "public_subnets_ids" {
-  description = "The ID of the VPC"
-  value = module.vpc.public_subnets
-}
-
 output "cluster_name" {
   description = "The EKS cluster name"
   value       = try(module.eks.cluster_name, null)
