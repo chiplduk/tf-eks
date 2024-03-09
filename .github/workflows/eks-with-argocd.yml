@@ -15,57 +15,89 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: "1.5.7"
+      # VPC
+      - name: Init VPC
+        id: tf_init_vpc
+        working-directory: vpc
+        run: |
+          terraform init \
+          -backend-config="bucket=${TFSTATE_BUCKET}" \
+          -backend-config="region=${TFSTATE_REGION}"
+      - name: Terraform Plan
+        id: tf_plan_vpc
+        working-directory: vpc
+        run: |
+          echo $(pwd); ls $(pwd); terraform plan -var-file=terraform.tfvars -out=terraform.tfplan
+      - name: Terraform Apply
+        id: tf_apply_vpc
+        working-directory: vpc
+        run: |
+          terraform apply "terraform.tfplan"       
+      # EKS
       - name: Init EKS
-        id: init
+        id: tf_init_eks
         working-directory: eks
         run: |
           terraform init \
           -backend-config="bucket=${TFSTATE_BUCKET}" \
           -backend-config="region=${TFSTATE_REGION}" 
       - name: Terraform Plan
-        id: plan
+        id: tf_plan_eks
         working-directory: eks
         run: |
-          terraform plan
+          terraform plan -var-file=terraform.tfvars -out=terraform.tfplan
       - name: Terraform Apply
-        id: apply
+        id: tf_apply_eks
         working-directory: eks
         run: |
-          terraform apply -no-color --auto-approve
+          terraform apply "terraform.tfplan"
       - name: Install AWS cli
         uses: unfor19/install-aws-cli-action@v1
         with:
           version: 2
-      - name: Add EKS cluster
+      - name: Add EKS cluster context
         id: eks_context
         run: |
           aws eks update-kubeconfig --name main --alias eks-main
-      - name: Init ALB controller
-        id: alb_init
+      # ALB Controller
+      - name: Terraform Init ALB controller
+        id: tf_init_alb_controller
         working-directory: alb-controller
         run: |
           terraform init \
           -backend-config="bucket=${TFSTATE_BUCKET}" \
-          -backend-config="region=${TFSTATE_REGION}" 
-      - name: Install ALB controller
-        id: alb_apply
+          -backend-config="region=${TFSTATE_REGION}"
+      - name: Terraform Plan ALB Controller
+        id: tf_plan_alb_controller
+        working-directory: alb
+        run: |
+          terraform plan -out=terraform.tfplan          
+      - name: Teraform Apply ALB controller
+        id: tf_apply_alb_controller
         working-directory: alb-controller
         run: |
-          terraform apply -no-color --auto-approve
-      - name: Init ArgoCD
-        id: argocd_init
+          terraform apply "terraform.tfplan"
+      # ArgoCD
+      - name: Terraform Init ArgoCD
+        id: tf_init_argocd
         working-directory: argocd
         run: |
           terraform init \
           -backend-config="bucket=${TFSTATE_BUCKET}" \
-          -backend-config="region=${TFSTATE_REGION}"     
-      - name: Install ArgoCD
-        id: argocd_apply
+          -backend-config="region=${TFSTATE_REGION}"
+      - name: Terraform Plan ArgoCD
+        id: tf_plan_argocd
         working-directory: argocd
         run: |
-          terraform apply -no-color --auto-approve
+          terraform plan -out=terraform.tfplan             
+      - name: Teraform Apply ArgoCD
+        id: tf_apply_argocd
+        working-directory: argocd
+        run: |
+          terraform apply "terraform.tfplan"
       - name: Install kubectl
-        uses: azure/setup-kubectl@v3   
+        uses: azure/setup-kubectl@v3
+      # Add finalizer to be sure that ALB is destroyed by ALB controller once all ArgoCD applications are deleted.
       - name: argocd_patch
         run: |
           kubectl patch ingress argocd-server-ingress -n argocd -p '{"metadata":{"finalizers":["ingress.k8s.aws/resources"]}}' --type=merge
@@ -87,43 +119,59 @@ jobs:
         uses: unfor19/install-aws-cli-action@v1
         with:
           version: 2
-      - name: Add EKS cluster
+      - name: Add EKS cluster context
         id: eks_context
         run: |
-          aws eks update-kubeconfig --name main --alias eks-main                 
-      - name: Init ArgoCD
-        id: init_argocd
+          aws eks update-kubeconfig --name main --alias eks-main
+      # ArgoCD
+      - name: Terraform Init ArgoCD
+        id: tf_init_argocd
         working-directory: argocd
         run: |
           terraform init \
           -backend-config="bucket=${TFSTATE_BUCKET}" \
           -backend-config="region=${TFSTATE_REGION}" 
-      - name: Destroy ArgoCD
-        id: destroy_argocd
+      - name: Terraform Destroy ArgoCD
+        id: tf_destroy_argocd
         working-directory: argocd
         run: |
           terraform destroy -no-color --auto-approve
-      - name: Init ALB Controller
-        id: init_alb_controller
+      # ALB controller
+      - name: Terraform Init ALB Controller
+        id: tf_init_alb_controller
         working-directory: alb-controller
         run: |
           terraform init \
           -backend-config="bucket=${TFSTATE_BUCKET}" \
           -backend-config="region=${TFSTATE_REGION}" 
-      - name: Destroy ALB controller
-        id: destroy_alb_controller
+      - name: Terraform Destroy ALB controller
+        id: tf_destroy_alb_controller
         working-directory: alb-controller
         run: |
           terraform destroy -no-color --auto-approve
-      - name: Init EKS
-        id: init_eks
+      # EKS
+      - name: Terraform Init EKS
+        id: tf_init_eks
         working-directory: eks
         run: |
           terraform init \
           -backend-config="bucket=${TFSTATE_BUCKET}" \
           -backend-config="region=${TFSTATE_REGION}" 
-      - name: Destroy EKS
-        id: destroy_eks
+      - name: Terraform Destroy EKS
+        id: tf_destroy_eks
         working-directory: eks
         run: |
           terraform destroy -no-color --auto-approve
+      # VPC
+      - name: Terraform Init VPC
+        id: tf_init_vpc
+        working-directory: vpc
+        run: |
+          terraform init \
+          -backend-config="bucket=${TFSTATE_BUCKET}" \
+          -backend-config="region=${TFSTATE_REGION}" 
+      - name: Terraform Destroy EKS
+        id: tf_destroy_vpc
+        working-directory: vpc
+        run: |
+          terraform destroy --auto-approve        

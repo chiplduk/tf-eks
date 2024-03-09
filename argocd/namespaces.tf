@@ -1,18 +1,17 @@
-resource "kubernetes_namespace" "kubeshark" {  
+resource "kubernetes_namespace" "kubeshark" {
   metadata {
     name = "kubeshark"
     labels = {
-       "app.kubernetes.io/managed-by" = "Helm"
+      "app.kubernetes.io/managed-by" = "Helm"
     }
   }
 }
 
-
-resource "kubernetes_namespace" "applications" {  
+resource "kubernetes_namespace" "applications" {
   metadata {
     name = "applications"
     labels = {
-       "app.kubernetes.io/managed-by" = "Helm"
+      "app.kubernetes.io/managed-by" = "Helm"
     }
   }
 }
