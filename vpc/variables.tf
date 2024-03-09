@@ -68,6 +68,7 @@ variable "subnets" {
     tags        = map(string)
     nacl        = string
   }))
+  default = []
 }
 
 variable "route_tables" {
@@ -83,6 +84,7 @@ variable "endpoints" {
 variable "elastic_ips" {
   description = "List of Elastic IP names"
   type        = list(string)
+  default = []
 }
 
 variable "nat_gateways" {
@@ -92,6 +94,7 @@ variable "nat_gateways" {
     name   = string
     subnet = string
   }))
+  default = []
 }
 
 variable "vpc_peering" {
