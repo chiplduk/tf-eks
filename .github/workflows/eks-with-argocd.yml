@@ -15,6 +15,7 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: "1.5.7"
+        label: vpc
       # VPC
       - name: Init VPC
         id: tf_init_vpc
@@ -32,7 +33,7 @@ jobs:
         id: tf_apply_vpc
         working-directory: vpc
         run: |
-          terraform apply "terraform.tfplan"       
+          terraform apply "terraform.tfplan"
       # EKS
       - name: Init EKS
         id: tf_init_eks
@@ -59,48 +60,24 @@ jobs:
         id: eks_context
         run: |
           aws eks update-kubeconfig --name main --alias eks-main
-      # ALB Controller
-      - name: Terraform Init ALB controller
-        id: tf_init_alb_controller
-        working-directory: alb-controller
+      # Applications
+      - name: Terraform Init Applications
+        id: tf_init_applications
+        working-directory: applications
         run: |
           terraform init \
           -backend-config="bucket=${TFSTATE_BUCKET}" \
-          -backend-config="region=${TFSTATE_REGION}"
-      - name: Terraform Plan ALB Controller
-        id: tf_plan_alb_controller
-        working-directory: alb
+          -backend-config="region=${TFSTATE_REGION}"      
+      - name: Terraform Plan Applications
+        id: tf_plan_alb_applications
+        working-directory: applications
         run: |
           terraform plan -out=terraform.tfplan          
-      - name: Teraform Apply ALB controller
-        id: tf_apply_alb_controller
-        working-directory: alb-controller
+      - name: Teraform Apply applications
+        id: tf_apply_applications
+        working-directory: applications
         run: |
           terraform apply "terraform.tfplan"
-      # ArgoCD
-      - name: Terraform Init ArgoCD
-        id: tf_init_argocd
-        working-directory: argocd
-        run: |
-          terraform init \
-          -backend-config="bucket=${TFSTATE_BUCKET}" \
-          -backend-config="region=${TFSTATE_REGION}"
-      - name: Terraform Plan ArgoCD
-        id: tf_plan_argocd
-        working-directory: argocd
-        run: |
-          terraform plan -out=terraform.tfplan             
-      - name: Teraform Apply ArgoCD
-        id: tf_apply_argocd
-        working-directory: argocd
-        run: |
-          terraform apply "terraform.tfplan"
-      - name: Install kubectl
-        uses: azure/setup-kubectl@v3
-      # Add finalizer to be sure that ALB is destroyed by ALB controller once all ArgoCD applications are deleted.
-      - name: argocd_patch
-        run: |
-          kubectl patch ingress argocd-server-ingress -n argocd -p '{"metadata":{"finalizers":["ingress.k8s.aws/resources"]}}' --type=merge
 
   eks-destroy:
     name: "terraform_destroy"
@@ -123,30 +100,17 @@ jobs:
         id: eks_context
         run: |
           aws eks update-kubeconfig --name main --alias eks-main
-      # ArgoCD
-      - name: Terraform Init ArgoCD
-        id: tf_init_argocd
-        working-directory: argocd
+      # Applications
+      - name: Terraform Init applications
+        id: tf_init_applications
+        working-directory: applications
         run: |
           terraform init \
           -backend-config="bucket=${TFSTATE_BUCKET}" \
           -backend-config="region=${TFSTATE_REGION}" 
-      - name: Terraform Destroy ArgoCD
-        id: tf_destroy_argocd
-        working-directory: argocd
-        run: |
-          terraform destroy -no-color --auto-approve
-      # ALB controller
-      - name: Terraform Init ALB Controller
-        id: tf_init_alb_controller
-        working-directory: alb-controller
-        run: |
-          terraform init \
-          -backend-config="bucket=${TFSTATE_BUCKET}" \
-          -backend-config="region=${TFSTATE_REGION}" 
-      - name: Terraform Destroy ALB controller
-        id: tf_destroy_alb_controller
-        working-directory: alb-controller
+      - name: Terraform Destroy applications
+        id: tf_destroy_applications
+        working-directory: applications
         run: |
           terraform destroy -no-color --auto-approve
       # EKS

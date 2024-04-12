@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: secure-api-ingress
+  namespace: secure-api
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: secure-api.svc.cluster.aws
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: secure-api
+                port:
+                  name: svc-port
+  tls: 
+    - hosts: 
+        - secure-api.svc.cluster.aws
+      secretName: tls-secure-api

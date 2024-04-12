@@ -8,16 +8,8 @@ terraform {
     kubernetes = {}
   }
 
-  # backend "s3" {
-  #   key    = "vpc/terraform.tfstate"
-  # }
-
-  cloud {
-    organization = "example-org-eed6a7"
-
-    workspaces {
-      name = "vpc"
-    }
+  backend "s3" {
+    key    = "vpc/terraform.tfstate"
   }
 
 }

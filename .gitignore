@@ -33,7 +33,9 @@ override.tf.json
 .terraformrc
 
 .env
+.env_app
 */.terraform*
 */tf.conf
 
 */*.tfplan
+.certificates/*
