@@ -21,3 +21,8 @@ variable "HC_VAULT_TOKEN" {
 variable "HC_VAULT_ACCESSOR" {
   type = string
 }
+
+variable "bucket_name" {
+  description = "Bucket name to get data from remote state"
+  type = string
+}

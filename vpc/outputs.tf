@@ -13,10 +13,10 @@ output "subnets" {
   value       = { for subnet in var.subnets : subnet.name => aws_subnet.this[subnet.name].id }
 }
 
-# output "public_subnets_ids" {
-#   description = "A map of subnets (subnet name => subnet ID)"
-#   value       = [ for subnet in var.subnets : aws_subnet.this[subnet.name].id ]
-# }
+output "public_subnets_ids" {
+  description = "A map of subnets (subnet name => subnet ID)"
+  value       = [ for subnet in var.subnets : aws_subnet.this[subnet.name].id ]
+}
 
 output "igw_id" {
   description = "Internet Gateway ID"

@@ -4,8 +4,8 @@ resource "kubernetes_secret" "tls-secure-api" {
     namespace = kubernetes_namespace.secure-api.metadata.0.name
   }
   data = {
-    "tls.crt" = "${file("../${path.module}/.certificates/secure-api.crt")}"
-    "tls.key" = "${file("../${path.module}/.certificates/secure-api.key")}"
+    "tls.crt" = "${file("../.certificates/secure-api.crt")}"
+    "tls.key" = "${file("../.certificates/secure-api.key")}"
   }
   type = "kubernetes.io/tls"
 }

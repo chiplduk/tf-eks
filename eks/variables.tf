@@ -20,3 +20,8 @@ variable "subnet_names" {
   description = "List of subnet names to deploy EKS cluster"
   type        = list(string)
 }
+
+variable "bucket_name" {
+  description = "Bucket name to get data from remote state"
+  type = string
+}
