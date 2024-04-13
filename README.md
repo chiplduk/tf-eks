@@ -14,11 +14,11 @@ You need to have AWS account with S3 bucket deployed to store terrafrom state fi
 ### 2. Generate self-signed certificate
 #### a. Generate a private key using the following command.
 
-`$ openssl genrsa -out ./.certificates/secure-api.key 2048`
+`openssl genrsa -out .certificates/secure-api.key 2048`
 
 #### b. Generate a public key with the following command. I set “*.svc.cluster.aws” as “Common Name”.
 
-`$ openssl req -new -nodes -key ./.certificates/secure-api.key -out ./.certificates/secure-api.crt  -subj "/CN=*.svc.cluster.aws" `
+`openssl req -x509 -new -nodes -days 365 -key ./.certificates/secure-api.key -out ./.certificates/secure-api.crt -subj "/CN=*secure-api*.svc.cluster.aws" `
 
 ### 3. Create file with AWS credentials and other environment variables
 

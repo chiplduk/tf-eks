@@ -38,4 +38,5 @@ override.tf.json
 */tf.conf
 
 */*.tfplan
-.certificates/*
+applications/.certificates/*
+.certificates

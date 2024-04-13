@@ -2,6 +2,10 @@ data "kubectl_filename_list" "manifests_secure_api" {
   pattern = "./manifests/secure-api/*.yaml"
 }
 
+data "kubectl_filename_list" "manifests_curl" {
+  pattern = "./manifests/curl/*.yaml"
+}
+
 data "terraform_remote_state" "vpc" {
   backend = "s3"
   config = {
