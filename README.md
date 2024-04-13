@@ -14,11 +14,12 @@ You need to have AWS account with S3 bucket deployed to store terrafrom state fi
 ### 2. Generate self-signed certificate
 #### a. Generate a private key using the following command.
 
+`mkdir .certificates/`
 `openssl genrsa -out .certificates/secure-api.key 2048`
 
 #### b. Generate a public key with the following command. I set “*.svc.cluster.aws” as “Common Name”.
 
-`openssl req -x509 -new -nodes -days 365 -key ./.certificates/secure-api.key -out ./.certificates/secure-api.crt -subj "/CN=*secure-api*.svc.cluster.aws" `
+`openssl req -x509 -new -nodes -days 365 -key ./.certificates/secure-api.key -out ./.certificates/secure-api.crt -subj "/CN=secure-api.svc.cluster.aws" -addext "subjectAltName = DNS:secure-api.svc.cluster.aws" `
 
 ### 3. Create file with AWS credentials and other environment variables
 
@@ -48,17 +49,13 @@ EOF
 
 ## 5. Configure access to the applications
 
-After job finishes sucessfully you will get an output with NLB Listener Public IPs
+After job finishes sucessfully you will get an output with NLB DNS name
 ```
 Outputs:
 
-nlb_public_ips = [
-  "52.48.166.10",
-  "52.16.192.184",
-  "34.246.130.128",
-]
+nlb_dns_name = "ae4a0df51676948d2b637d8c16ac9efc-57bda13f48aff47b.elb.eu-west-1.amazonaws.com"
 ```
-You need to update `/etc/hosts` (or `C:\Windows\System32\drivers\etc\hosts` in case of Windows WSL2) file to have an access to services in cluster through NLB (1 NLB public IP is enough)
+You need to resolve this DNS name to IP and update `/etc/hosts` (or `C:\Windows\System32\drivers\etc\hosts` in case of Windows WSL2) file to have an access to services in cluster through NLB (1 NLB public IP is enough)
 ```
 52.48.166.10  secure-api.svc.cluster.aws
 ```
@@ -70,3 +67,11 @@ Now you can reach out application over browser
 ## Destroy EKS and applications using Act
 
 ```act -j eks-destroy --env-file .env```
+
+
+<!-- eksctl get iamidentitymapping --cluster main
+
+eksctl create iamidentitymapping \
+    --cluster main \
+    --arn arn:aws:iam::659192515497:user/reader \
+    --username readonly-user -->

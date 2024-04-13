@@ -19,19 +19,5 @@ data "aws_lb" "ingress" {
   tags = {
     "kubernetes.io/service-name" = "ingress/ingress-ingress-nginx-controller"
   }
-  depends_on = [time_sleep.wait_180_seconds]
-}
-
-data "aws_network_interface" "lb" {
-  for_each = toset(data.terraform_remote_state.vpc.outputs.public_subnets_ids) 
-
-  filter {
-    name   = "description"
-    values = ["ELB ${data.aws_lb.ingress.arn_suffix}"]
-  }
-
-  filter {
-    name   = "subnet-id"
-    values = [each.value]
-  }
+  depends_on = [helm_release.ingress]
 }
