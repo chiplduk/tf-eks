@@ -1,4 +1,4 @@
-name: 'EKS cluster with ArgoCD'
+name: 'EKS cluster with applications'
 id: eks-deploy
 
 jobs:
