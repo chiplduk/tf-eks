@@ -65,7 +65,7 @@ jobs:
         id: generate_certificate
         working-directory: applications
         run: |
-          mkdir ./.certificates
+          mkdir -p ./.certificates
           openssl genrsa -out ./.certificates/secure-api.key 2048
           openssl req -x509 -new -nodes -days 365 \
           -key ./.certificates/secure-api.key \
