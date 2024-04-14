@@ -9,3 +9,9 @@ resource "kubernetes_namespace" "secure-api" {
     name = "secure-api"
   }
 }
+
+resource "kubernetes_namespace" "open-api" {
+  metadata {
+    name = "open-api"
+  }
+}
