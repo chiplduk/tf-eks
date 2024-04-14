@@ -2,11 +2,11 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: curl-blocked
+  name: aws-cli-blocked
 spec:
   podSelector:
     matchLabels:
-      app: curl-blocked
+      app: aws-cli-blocked
   policyTypes:
   - Egress
   egress:

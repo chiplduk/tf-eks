@@ -3,7 +3,7 @@ data "kubectl_filename_list" "manifests_secure_api" {
 }
 
 data "kubectl_filename_list" "manifests_curl" {
-  pattern = "./manifests/curl/*.yaml"
+  pattern = "./manifests/aws-cli/*.yaml"
 }
 
 data "terraform_remote_state" "vpc" {
@@ -11,6 +11,15 @@ data "terraform_remote_state" "vpc" {
   config = {
     bucket = var.bucket_name
     key    = "vpc/terraform.tfstate"
+    region = "eu-west-1"
+  }
+}
+
+data "terraform_remote_state" "eks" {
+  backend = "s3"
+  config = {
+    bucket = var.bucket_name
+    key    = "eks/terraform.tfstate"
     region = "eu-west-1"
   }
 }

@@ -24,7 +24,7 @@ module "eks" {
 
   vpc_id = data.terraform_remote_state.vpc.outputs.vpc_id
   # Publics subnets used to avoid using NATGW and save money
-  subnet_ids = [for subnet in var.subnet_names : data.terraform_remote_state.vpc.outputs.subnets[subnet]]
+  subnet_ids               = [for subnet in var.subnet_names : data.terraform_remote_state.vpc.outputs.subnets[subnet]]
   control_plane_subnet_ids = [for subnet in var.subnet_names : data.terraform_remote_state.vpc.outputs.subnets[subnet]]
 
   eks_managed_node_groups = {

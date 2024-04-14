@@ -23,5 +23,5 @@ variable "subnet_names" {
 
 variable "bucket_name" {
   description = "Bucket name to get data from remote state"
-  type = string
+  type        = string
 }

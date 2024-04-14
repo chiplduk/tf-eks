@@ -1,12 +1,13 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: curl-blocked
+  name: aws-cli-allowed
   labels:
-    app: curl-blocked
+    app: aws-cli-allowed
 spec:
+  serviceAccountName: s3access
   containers:
-  - image: curlimages/curl
+  - image: amazon/aws-cli
     command:
       - sleep
       - "3600"
