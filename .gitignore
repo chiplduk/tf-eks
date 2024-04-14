@@ -38,7 +38,5 @@ override.tf.json
 */tf.conf
 
 */*.tfplan
-applications/.certificates/*
-.certificates
 assume_role.sh
 scripts/*
