@@ -1,10 +1,11 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: curl
+  name: curl-allowed
   labels:
-    app: curl
+    app: curl-allowed
 spec:
+  serviceAccountName: s3access
   containers:
   - image: curlimages/curl
     command:

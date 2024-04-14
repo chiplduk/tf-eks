@@ -14,12 +14,12 @@ You need to have AWS account with S3 bucket deployed to store terrafrom state fi
 ### 2. Generate self-signed certificate
 #### a. Generate a private key using the following command.
 
-`mkdir .certificates/`
-`openssl genrsa -out .certificates/secure-api.key 2048`
+`mkdir ./applications/certificates/`
+`openssl genrsa -out ./applications/certificates/secure-api.key 2048`
 
 #### b. Generate a public key with the following command. I set “*.svc.cluster.aws” as “Common Name”.
 
-`openssl req -x509 -new -nodes -days 365 -key ./.certificates/secure-api.key -out ./.certificates/secure-api.crt -subj "/CN=secure-api.svc.cluster.aws" -addext "subjectAltName = DNS:secure-api.svc.cluster.aws" `
+`openssl req -x509 -new -nodes -days 365 -key ./applications/.certificates/secure-api.key -out ./applications/.certificates/secure-api.crt -subj "/CN=secure-api.svc.cluster.aws" -addext "subjectAltName = DNS:secure-api.svc.cluster.aws" `
 
 ### 3. Create file with AWS credentials and other environment variables
 
@@ -67,11 +67,3 @@ Now you can reach out application over browser
 ## Destroy EKS and applications using Act
 
 ```act -j eks-destroy --env-file .env```
-
-
-<!-- eksctl get iamidentitymapping --cluster main
-
-eksctl create iamidentitymapping \
-    --cluster main \
-    --arn arn:aws:iam::659192515497:user/reader \
-    --username readonly-user -->

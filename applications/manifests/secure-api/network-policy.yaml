@@ -1,0 +1,19 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: curl-blocked
+spec:
+  podSelector:
+    matchLabels:
+      app: curl-blocked
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: secure-api
+    - podSelector:
+        matchLabels:
+          k8s-app: secure-api

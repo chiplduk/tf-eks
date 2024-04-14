@@ -40,3 +40,5 @@ override.tf.json
 */*.tfplan
 applications/.certificates/*
 .certificates
+assume_role.sh
+scripts/*

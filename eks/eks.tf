@@ -16,6 +16,9 @@ module "eks" {
     }
     vpc-cni = {
       most_recent = true
+      configuration_values = jsonencode({
+        enableNetworkPolicy = "true"
+      })
     }
   }
 
@@ -37,7 +40,7 @@ module "eks" {
 
   # Kubeshark doesn't work without this rule
   node_security_group_additional_rules = {
-    allow_https_between_nodes = {
+    allow_http_between_nodes = {
       description = "Allow TCP 80 between nodes for kubeshark"
       protocol    = "tcp"
       from_port   = 80

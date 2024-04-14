@@ -61,6 +61,17 @@ jobs:
         run: |
           aws eks update-kubeconfig --name main --alias eks-main
       # Applications
+      - name: Generate certificate
+        id: generate_certificate
+        working-directory: applications
+        run: |
+          mkdir ./.certificates
+          openssl genrsa -out ./.certificates/secure-api.key 2048
+          openssl req -x509 -new -nodes -days 365 \
+          -key ./.certificates/secure-api.key \
+          -out ./.certificates/secure-api.crt \
+          -subj "/CN=secure-api.svc.cluster.aws" \
+          -addext "subjectAltName = DNS:secure-api.svc.cluster.aws"
       - name: Terraform Init Applications
         id: tf_init_applications
         working-directory: applications
@@ -112,7 +123,7 @@ jobs:
         id: tf_destroy_applications
         working-directory: applications
         run: |
-          terraform destroy -no-color --auto-approve
+          ls -al; terraform destroy -no-color --auto-approve
       # EKS
       - name: Terraform Init EKS
         id: tf_init_eks
