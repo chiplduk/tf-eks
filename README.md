@@ -11,7 +11,7 @@ You need to have AWS account with S3 bucket deployed to store terrafrom state fi
 * Docker: https://docs.docker.com/engine/install/ubuntu/ 
 * Act: https://github.com/nektos/act
 
-### 2. Generate self-signed certificate
+### 2. Generate self-signed certificate (Optional. If you are deploying the code using Act then skip this step)
 #### a. Generate a private key using the following command.
 
 `mkdir ./applications/certificates/`
@@ -32,6 +32,7 @@ AWS_SECRET_ACCESS_KEY=XXXXXXXXXXXXXXXX
 AWS_DEFAULT_REGION=<region>
 TFSTATE_BUCKET=<bucket_name>
 TFSTATE_REGION=<bucket_region>
+TF_VAR_bucket_name=<bucket_name>
 
 # These vars will be passed to k8s secret
 TF_VAR_PSP_ENCRYPTION_SALT=01
