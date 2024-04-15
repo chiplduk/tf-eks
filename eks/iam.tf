@@ -42,9 +42,9 @@ resource "aws_iam_role" "irsa_s3_access_role" {
   })
 }
 
-resource "aws_iam_role_policy" "eks_cluster_read_olny" {
-  name        = "eks_cluster_read_olny"
-  role =    aws_iam_role.eks_cluster_read_olny_role.id
+resource "aws_iam_role_policy" "eks_cluster_read_only" {
+  name        = "eks_cluster_read_only"
+  role =    aws_iam_role.eks_cluster_read_only_role.id
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -62,8 +62,25 @@ resource "aws_iam_role_policy" "eks_cluster_read_olny" {
   })
 }
 
-resource "aws_iam_role" "eks_cluster_read_olny_role" {
-  name = "eks_cluster_read_olny_role"
+resource "aws_iam_role" "eks_cluster_read_only_role" {
+  name = "eks_cluster_read_only_role"
+
+  assume_role_policy = jsonencode({
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+            },
+            "Action": "sts:AssumeRole"
+        }
+    ]
+  })
+}
+
+resource "aws_iam_role" "eks_cluster_read_only_role_new" {
+  name = "eks_cluster_read_only_role_new"
 
   assume_role_policy = jsonencode({
     "Version": "2012-10-17",
