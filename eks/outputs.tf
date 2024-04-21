@@ -15,5 +15,5 @@ output "oidc_provider_endpoint" {
 
 output "irsa_s3_access_role_arn" {
   description = "Role to be attached to EKS Service Account"
-  value = try(aws_iam_role.irsa_s3_access_role.arn, null)
+  value       = try(aws_iam_role.irsa_s3_access_role.arn, null)
 }

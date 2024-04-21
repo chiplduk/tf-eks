@@ -50,21 +50,21 @@ module "eks" {
     }
   }
 
+  # Disable audit logs to CloudWatch
   create_cloudwatch_log_group = false
-  cluster_enabled_log_types = []
-  
-  authentication_mode	= "API_AND_CONFIG_MAP"
+  cluster_enabled_log_types   = []
+
+  authentication_mode = "API"
 
   enable_cluster_creator_admin_permissions = true
 
   access_entries = {
-    # One access entry with a policy associated
-    example = {
-      kubernetes_groups = ["read-only"]
-      principal_arn     = aws_iam_role.eks_cluster_read_only_role_new.arn
+    eks_secure_api_read_only = {
+      kubernetes_groups = ["secure-api"]
+      principal_arn     = aws_iam_role.eks_cluster_secure_api_read_only_role.arn
 
       policy_associations = {
-        example = {
+        secure_api_readonly = {
           policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSViewPolicy"
           access_scope = {
             namespaces = ["secure-api"]
@@ -73,7 +73,24 @@ module "eks" {
         }
       }
     }
+
+    eks_open_api_edit = {
+      kubernetes_groups = ["open-api"]
+      principal_arn     = aws_iam_role.eks_cluster_open_api_edit_role.arn
+      policy_associations = {
+        open_api_admin = {
+          policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSEditPolicy"
+          access_scope = {
+            namespaces = ["open-api"]
+            type       = "namespace"
+          }
+        }
+      }
+    }
   }
 
-  depends_on = [ aws_iam_role.eks_cluster_read_only_role_new ]
+  depends_on = [
+    aws_iam_role.eks_cluster_secure_api_read_only_role,
+    aws_iam_role.eks_cluster_open_api_edit_role
+  ]
 }

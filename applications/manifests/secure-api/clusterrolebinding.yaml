@@ -8,5 +8,5 @@ roleRef:
   name: k8s-read
 subjects:
 - apiGroup: rbac.authorization.k8s.io
-  kind: User
-  name: readonly-user
+  kind: Group
+  name: open-api

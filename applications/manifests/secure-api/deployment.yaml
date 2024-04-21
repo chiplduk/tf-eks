@@ -30,6 +30,18 @@ spec:
             requests:
               cpu: 0.125
               memory: 50Mi
+          livenessProbe:
+            httpGet:
+              path: /
+              port: app-port
+            failureThreshold: 1
+            periodSeconds: 10
+            initialDelaySeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /
+              port: app-port
+            periodSeconds: 5              
           env:
           - name: PSP_ENCRYPTION_SALT
             valueFrom:
