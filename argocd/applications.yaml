@@ -1,0 +1,31 @@
+---
+projects:
+  - name: development
+    sourceRepos: 
+    - "*"
+    destinations:
+    - namespace: "*"
+      server: https://kubernetes.default.svc
+    clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+    namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'
+
+applications:
+  - name: root
+    namespace: argocd
+    project: development
+    source:
+      repoURL: https://github.com/chiplduk/kubernetes-stuff.git
+      targetRevision: eks
+      path: argocd/manifests/root
+      directory:
+        recurse: true
+    destination:
+      server: https://kubernetes.default.svc
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true

@@ -46,7 +46,7 @@ EOF
 
 ## 4. Deploy EKS and applications using Act. File with env vars should be passed to the Act runtime.
 
-```act -j eks-deploy --env-file .env```
+```act -j eks-deploy -W ./.github/workflows/eks-with-argocd-alb.yml --env-file .env```
 
 ## 5. Configure access to the applications
 
@@ -67,4 +67,4 @@ Now you can reach out application over browser
 
 ## Destroy EKS and applications using Act
 
-```act -j eks-destroy --env-file .env```
+```act -j eks-destroy -W ./.github/workflows/eks-with-argocd-alb.yml --env-file .env```

@@ -1,0 +1,153 @@
+name: 'EKS cluster with applications'
+id: eks-deploy
+
+jobs:
+  eks-deploy:
+    name: "terraform_apply"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Chechout to repo
+        uses: actions/checkout@v3
+      - name: Install terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.5.7"
+        label: vpc
+      # VPC
+      - name: Init VPC
+        id: tf_init_vpc
+        working-directory: vpc
+        run: |
+          terraform init \
+          -backend-config="bucket=${TFSTATE_BUCKET}" \
+          -backend-config="region=${TFSTATE_REGION}"
+      - name: Terraform Plan
+        id: tf_plan_vpc
+        working-directory: vpc
+        run: |
+          echo $(pwd); ls $(pwd); terraform plan -var-file=terraform.tfvars -out=terraform.tfplan
+      - name: Terraform Apply
+        id: tf_apply_vpc
+        working-directory: vpc
+        run: |
+          terraform apply "terraform.tfplan"
+      # EKS
+      - name: Init EKS
+        id: tf_init_eks
+        working-directory: eks
+        run: |
+          terraform init \
+          -backend-config="bucket=${TFSTATE_BUCKET}" \
+          -backend-config="region=${TFSTATE_REGION}" 
+      - name: Terraform Plan
+        id: tf_plan_eks
+        working-directory: eks
+        run: |
+          terraform plan -var-file=terraform.tfvars -out=terraform.tfplan
+      - name: Terraform Apply
+        id: tf_apply_eks
+        working-directory: eks
+        run: |
+          terraform apply "terraform.tfplan"
+      - name: Install AWS cli
+        uses: unfor19/install-aws-cli-action@v1
+        with:
+          version: 2
+      - name: Add EKS cluster context
+        id: eks_context
+        run: |
+          aws eks update-kubeconfig --name main --alias eks-main
+      # Applications
+      - name: Generate certificate
+        id: generate_certificate
+        working-directory: applications
+        run: |
+          mkdir -p ./.certificates
+          rm ./.certificates/*
+          openssl genrsa -out ./.certificates/secure-api.key 2048
+          openssl req -x509 -new -nodes -days 365 \
+          -key ./.certificates/secure-api.key \
+          -out ./.certificates/secure-api.crt \
+          -subj "/CN=secure-api.svc.cluster.aws" \
+          -addext "subjectAltName = DNS:secure-api.svc.cluster.aws"
+      - name: Terraform Init Applications
+        id: tf_init_applications
+        working-directory: applications
+        run: |
+          terraform init \
+          -backend-config="bucket=${TFSTATE_BUCKET}" \
+          -backend-config="region=${TFSTATE_REGION}"      
+      - name: Terraform Plan Applications
+        id: tf_plan_alb_applications
+        working-directory: applications
+        run: |
+          terraform plan -out=terraform.tfplan          
+      - name: Teraform Apply applications
+        id: tf_apply_applications
+        working-directory: applications
+        run: |
+          terraform apply "terraform.tfplan"
+
+  eks-destroy:
+    name: "terraform_destroy"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Chechout to repo
+        uses: actions/checkout@v3    
+      - name: Install terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.5.7"
+      - name: Install AWS cli
+        uses: unfor19/install-aws-cli-action@v1
+        with:
+          version: 2
+      - name: Add EKS cluster context
+        id: eks_context
+        run: |
+          aws eks update-kubeconfig --name main --alias eks-main
+      # Applications
+      - name: Terraform Init applications
+        id: tf_init_applications
+        working-directory: applications
+        run: |
+          terraform init \
+          -backend-config="bucket=${TFSTATE_BUCKET}" \
+          -backend-config="region=${TFSTATE_REGION}" 
+      - name: Terraform Destroy applications
+        id: tf_destroy_applications
+        working-directory: applications
+        run: |
+          ls -al; terraform destroy -no-color --auto-approve
+      # EKS
+      - name: Terraform Init EKS
+        id: tf_init_eks
+        working-directory: eks
+        run: |
+          terraform init \
+          -backend-config="bucket=${TFSTATE_BUCKET}" \
+          -backend-config="region=${TFSTATE_REGION}" 
+      - name: Terraform Destroy EKS
+        id: tf_destroy_eks
+        working-directory: eks
+        run: |
+          terraform destroy -no-color --auto-approve
+      # VPC
+      - name: Terraform Init VPC
+        id: tf_init_vpc
+        working-directory: vpc
+        run: |
+          terraform init \
+          -backend-config="bucket=${TFSTATE_BUCKET}" \
+          -backend-config="region=${TFSTATE_REGION}" 
+      - name: Terraform Destroy EKS
+        id: tf_destroy_vpc
+        working-directory: vpc
+        run: |
+          terraform destroy --auto-approve        
