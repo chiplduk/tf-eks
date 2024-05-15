@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root
+spec:
+  project: development
+  source:
+    repoURL: https://github.com/chiplduk/kubernetes-stuff.git
+    path: argocd/manifests/root
+    targetRevision: eks
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+  # Define variables
+  values:
+    - path: path/to/values.yaml

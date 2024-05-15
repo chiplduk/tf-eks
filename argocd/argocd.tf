@@ -136,3 +136,15 @@ resource "time_sleep" "wait_60_seconds" {
 
   create_duration = "60s"
 }
+
+resource "aws_route53_record" "wildcard" {
+  zone_id = data.aws_route53_zone.ingress.zone_id
+  name    = "*"
+  type    = "A"
+
+  alias {
+    name                   = data.aws_lb.ingress.dns_name
+    zone_id                = data.aws_lb.ingress.zone_id
+    evaluate_target_health = true
+  }
+}

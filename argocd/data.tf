@@ -37,3 +37,7 @@ data "aws_network_interface" "lb" {
 
   depends_on = [time_sleep.wait_60_seconds]
 }
+
+data "aws_route53_zone" "ingress" {
+  name = var.alb_domain_name
+}
