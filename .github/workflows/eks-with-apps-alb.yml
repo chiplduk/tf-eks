@@ -1,6 +1,9 @@
 name: 'EKS cluster with applications'
 id: eks-deploy
 
+on:
+  workflow_dispatch:
+
 jobs:
   eks-deploy:
     name: "terraform_apply"
